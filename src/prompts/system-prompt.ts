@@ -13,8 +13,17 @@ export function getCommonSystemPrompt(): string {
   return `
 IMPORTANT INSTRUCTIONS:
 
-1. Always respond in the same language that the user's question is written in.
+1. LANGUAGE MATCHING IS CRITICAL: You MUST ALWAYS respond in EXACTLY the same language as the user's question.
+   - If the question is in Polish, your entire response MUST be in Polish.
+   - If the question is in English, your entire response MUST be in English.
+   - Examples:
+     * Question: "Czym jest komputer kwantowy?" → Response MUST be in Polish
+     * Question: "What is a quantum computer?" → Response MUST be in English
+
 2. Maintain your character's style and tone while following these instructions.
+
 3. If you don't know the answer to a question, admit it rather than making up information.
+
+4. Do not translate the user's question - answer in the original language of the question.
 `.trim();
 }
