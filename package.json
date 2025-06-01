@@ -14,7 +14,9 @@
     "clean": "rm -rf dist",
     "start": "node dist/index.js",
     "lint": "eslint 'src/**/*.{js,ts}'",
-    "dev": "nodemon --exec \"node --import ./ts-node-register.js src/index.ts\""
+    "dev": "nodemon --exec \"node --import ./ts-node-register.js src/index.ts\"",
+    "test": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "keywords": [],
   "license": "ISC",
@@ -36,6 +38,8 @@
     "eslint": "^8.56.0",
     "nodemon": "^3.1.10",
     "ts-node": "^10.9.2",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "vitest": "^0.34.0",
+    "supertest": "^6.3.3"
   }
 }

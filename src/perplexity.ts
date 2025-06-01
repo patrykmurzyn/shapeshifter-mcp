@@ -88,6 +88,13 @@ export async function getPerplexityResponse(
     console.log(`Received answer from Perplexity (${answer.length} chars)`);
     return answer;
   } catch (error) {
+    // Rethrow custom errors without wrapping
+    if (
+      error instanceof PerplexityAPIError ||
+      error instanceof PerplexityTimeoutError
+    ) {
+      throw error;
+    }
     // Handle specific error types
     if (axios.isAxiosError(error)) {
       const axiosError = error as AxiosError;
