@@ -1,0 +1,41 @@
+{
+  "name": "shapeshifter-mcp",
+  "version": "1.0.0",
+  "description": "A Model Context Protocol server that allows you to ask questions to different characters and get responses in their style.",
+  "author": "Patryk Murzyn <contact@patrykmurzyn.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/patrykmurzyn/shapeshifter-mcp"
+  },
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "start": "node dist/index.js",
+    "lint": "eslint 'src/**/*.{js,ts}'",
+    "dev": "nodemon --exec \"node --import ./ts-node-register.js src/index.ts\""
+  },
+  "keywords": [],
+  "license": "ISC",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.1",
+    "axios": "^1.9.0",
+    "dotenv": "^16.5.0",
+    "express": "^4.18.2",
+    "zod": "^3.25.46"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.2",
+    "@types/node": "^22.15.29",
+    "@typescript-eslint/eslint-plugin": "^8.33.0",
+    "@typescript-eslint/parser": "^8.33.0",
+    "eslint": "^8.56.0",
+    "nodemon": "^3.1.10",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  }
+}
