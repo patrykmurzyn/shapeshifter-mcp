@@ -22,7 +22,7 @@ export class PerplexityTimeoutError extends Error {
   }
 }
 
-interface PerplexityOptions {
+export interface PerplexityOptions {
   model?: PerplexityModel;
   timeout?: number;
 }
@@ -145,4 +145,76 @@ export async function getPerplexityResponse(
       }`
     );
   }
+}
+
+export async function getPerplexityStream(
+  question: string,
+  character: CharacterKey = "rick",
+  options: PerplexityOptions = {},
+  onChunk: (chunk: string) => void
+): Promise<void> {
+  const apiKey = config.perplexity.apiKey;
+  if (!apiKey) {
+    throw new Error("PERPLEXITY_API_KEY is not defined");
+  }
+  const model = options.model || config.perplexity.model;
+  const timeoutMs =
+    options.timeout ||
+    MODEL_TIMEOUTS[model as PerplexityModel] ||
+    config.perplexity.timeoutMs;
+
+  console.log(
+    `Streaming question to Perplexity using model "${model}" with timeout ${
+      timeoutMs / 1000
+    }s: "${question.slice(0, 50)}${question.length > 50 ? "..." : ""}"`
+  );
+
+  let systemPrompt = getSystemPromptFor(character);
+  systemPrompt += "\n\n" + getCommonSystemPrompt();
+  const messages = [
+    { role: "system", content: systemPrompt },
+    { role: "user", content: question },
+  ];
+
+  const response = await axios.post(
+    config.perplexity.apiUrl,
+    { model: model, messages: messages, stream: true },
+    {
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      timeout: timeoutMs,
+      responseType: "stream",
+    }
+  );
+
+  const stream = response.data as import("stream").Readable;
+  return new Promise((resolve, reject) => {
+    let buffer = "";
+    stream.on("data", (chunk: Buffer) => {
+      buffer += chunk.toString("utf8");
+      // Split on SSE event delimiter (CRLF or LF) indicating end of event
+      const parts = buffer.split(/\r?\n\r?\n/);
+      buffer = parts.pop() || "";
+      for (const part of parts) {
+        const lines = part.split(/\r?\n/);
+        for (const line of lines) {
+          if (!line.startsWith("data:")) continue;
+          const data = line.replace(/^data:\s*/, "");
+          if (data === "[DONE]") continue;
+          try {
+            const payload = JSON.parse(data);
+            // Only emit streaming delta content; skip full message content
+            const content = payload.choices?.[0]?.delta?.content;
+            if (content) onChunk(content);
+          } catch {
+            // ignore parse errors
+          }
+        }
+      }
+    });
+    stream.on("end", () => resolve());
+    stream.on("error", (err: Error) => reject(err));
+  });
 }
